@@ -1,0 +1,6 @@
+.git
+.DS_Store
+chat-client/node_modules
+chat-server/target
+chat-server/uploads
+*.log
