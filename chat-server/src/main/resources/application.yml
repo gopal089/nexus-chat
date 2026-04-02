@@ -1,0 +1,114 @@
+spring:
+  application:
+    name: chat-server
+
+  # ──────────────────────────────────────────────────────────────
+  # DATASOURCE  (override with env vars in production)
+  # ──────────────────────────────────────────────────────────────
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:chatdb}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+
+  # ──────────────────────────────────────────────────────────────
+  # JPA / HIBERNATE
+  # ──────────────────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: none          # Flyway owns the schema, bypass strict validation for custom types
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_batch_fetch_size: 10
+        generate_statistics: false
+
+  # ──────────────────────────────────────────────────────────────
+  # FLYWAY
+  # ──────────────────────────────────────────────────────────────
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # ──────────────────────────────────────────────────────────────
+  # REDIS
+  # ──────────────────────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+
+  # ──────────────────────────────────────────────────────────────
+  # CACHE
+  # ──────────────────────────────────────────────────────────────
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000        # 5 minutes in milliseconds
+
+  # ──────────────────────────────────────────────────────────────
+  # MULTIPART FILE UPLOAD
+  # ──────────────────────────────────────────────────────────────
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB
+      max-request-size: 55MB
+
+# ──────────────────────────────────────────────────────────────
+# SERVER
+# ──────────────────────────────────────────────────────────────
+server:
+  port: ${PORT:8081}
+  error:
+    include-message: always
+
+# ──────────────────────────────────────────────────────────────
+# JWT
+# ──────────────────────────────────────────────────────────────
+app:
+  jwt:
+    # IMPORTANT: replace with at least 256-bit random secret in production
+    secret: ${JWT_SECRET:4b3c2a1d9e8f7g6h5i4j3k2l1m0n9o8p7q6r5s4t3u2v1w0x9y8z7a6b5c4d3e2f}
+    expiration-ms: ${JWT_EXPIRY_MS:86400000}   # 24 hours
+
+  # ──────────────────────────────────────────────────────────────
+  # FILE STORAGE
+  # ──────────────────────────────────────────────────────────────
+  storage:
+    upload-dir: ${UPLOAD_DIR:uploads}
+
+# ──────────────────────────────────────────────────────────────
+# ACTUATOR
+# ──────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ──────────────────────────────────────────────────────────────
+# LOGGING
+# ──────────────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.chatserver: DEBUG
+    org.springframework.web.socket: DEBUG
