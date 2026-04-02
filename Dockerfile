@@ -21,5 +21,5 @@ COPY --from=build /app/target/*.jar app.jar
 # Expose the backend port
 EXPOSE 8081
 
-# Run the backend
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the backend with memory limits for Render (512MB RAM)
+ENTRYPOINT ["java", "-Xmx384m", "-jar", "app.jar"]
